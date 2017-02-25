@@ -20,15 +20,19 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Threading;
 
 using ICSharpCode.ILSpy.Controls;
 using Mono.Cecil;
+using ProgressBar = System.Windows.Controls.ProgressBar;
 
 namespace ICSharpCode.ILSpy
 {
@@ -182,5 +186,36 @@ namespace ICSharpCode.ILSpy
 				return listView.SelectedItems.OfType<GacEntry>().Select(e => e.FileName).ToArray();
 			}
 		}
+
+	    private void ExportButton_OnClickButton_Click(object sender, RoutedEventArgs e)
+	    {
+
+			Stream myStream;
+			SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+
+			saveFileDialog1.Filter = "txt files   (*.txt)|*.txt";
+			saveFileDialog1.FilterIndex = 2;
+			saveFileDialog1.RestoreDirectory = true;
+
+	        if (saveFileDialog1.ShowDialog() != System.Windows.Forms.DialogResult.OK)
+				return;
+	        myStream = saveFileDialog1.OpenFile();
+			using (StreamWriter sw = new StreamWriter(myStream))
+	        {
+	            foreach (GacEntry item in this.listView.ItemsSource)
+	            {
+	                sw.Write(item.FullName+"\r\n");
+	            }
+						
+	            sw.Flush();
+	            sw.Close();
+	        }
+
+	        myStream.Close();
+	        System.Windows.Forms.MessageBox.Show("保存成功！", "提示");
+	    }
+
+		
+
 	}
 }
